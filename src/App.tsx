@@ -1,24 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import { ColorResult, CompactPicker } from "react-color";
+import { Field } from "./components";
 
 function App() {
+  const [color, setColor] = useState("");
+  const [isColorSelection, setIsColorSelection] = useState(false);
+
+  const handleChangeColor = (color: ColorResult) => {
+    setColor(color.hex);
+    setIsColorSelection((prev) => !prev);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {isColorSelection && (
+        <CompactPicker color={color} onChangeComplete={handleChangeColor} />
+      )}
+
+      <Field
+        colorBall={color}
+        onBallClick={() => {
+          setIsColorSelection((prev) => !prev);
+        }}
+      />
     </div>
   );
 }
