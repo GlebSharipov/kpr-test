@@ -58,6 +58,38 @@ export const Field: React.FC<TableProps> = ({ colorBall, onBallClick }) => {
     return arr;
   }, []);
 
+  const handleCollision = (ball: Ball, otherBall: Ball) => {
+    const dx = otherBall.x - ball.x;
+    const dy = otherBall.y - ball.y;
+    const distance = Math.sqrt(dx ** 2 + dy ** 2);
+
+    if (distance <= ball.radius + otherBall.radius) {
+      const angle = Math.atan2(dy, dx);
+      const overlap = ball.radius + otherBall.radius - distance;
+      const ax = overlap * Math.cos(angle);
+      const ay = overlap * Math.sin(angle);
+
+      ball.x -= ax / 2;
+      ball.y -= ay / 2;
+      otherBall.x += ax / 2;
+      otherBall.y += ay / 2;
+
+      const normalX = dx / distance;
+      const normalY = dy / distance;
+      const relativeVelocityX = otherBall.vx - ball.vx;
+      const relativeVelocityY = otherBall.vy - ball.vy;
+      const dotProduct =
+        relativeVelocityX * normalX + relativeVelocityY * normalY;
+
+      const impulse =
+        ((1 + elasticity) * dotProduct) / (ball.mass + otherBall.mass);
+      ball.vx += impulse * otherBall.mass * normalX;
+      ball.vy += impulse * otherBall.mass * normalY;
+      otherBall.vx -= impulse * ball.mass * normalX;
+      otherBall.vy -= impulse * ball.mass * normalY;
+    }
+  };
+
   useEffect(() => {
     if (selectedBallForColor.current && colorBall)
       selectedBallForColor.current.color = colorBall;
@@ -71,38 +103,6 @@ export const Field: React.FC<TableProps> = ({ colorBall, onBallClick }) => {
       const ctx = canvas.getContext("2d");
 
       if (!ctx) return;
-
-      const handleCollision = (ball: Ball, otherBall: Ball) => {
-        const dx = otherBall.x - ball.x;
-        const dy = otherBall.y - ball.y;
-        const distance = Math.sqrt(dx ** 2 + dy ** 2);
-
-        if (distance <= ball.radius + otherBall.radius) {
-          const angle = Math.atan2(dy, dx);
-          const overlap = ball.radius + otherBall.radius - distance;
-          const ax = overlap * Math.cos(angle);
-          const ay = overlap * Math.sin(angle);
-
-          ball.x -= ax / 2;
-          ball.y -= ay / 2;
-          otherBall.x += ax / 2;
-          otherBall.y += ay / 2;
-
-          const normalX = dx / distance;
-          const normalY = dy / distance;
-          const relativeVelocityX = otherBall.vx - ball.vx;
-          const relativeVelocityY = otherBall.vy - ball.vy;
-          const dotProduct =
-            relativeVelocityX * normalX + relativeVelocityY * normalY;
-
-          const impulse =
-            ((1 + elasticity) * dotProduct) / (ball.mass + otherBall.mass);
-          ball.vx += impulse * otherBall.mass * normalX;
-          ball.vy += impulse * otherBall.mass * normalY;
-          otherBall.vx -= impulse * ball.mass * normalX;
-          otherBall.vy -= impulse * ball.mass * normalY;
-        }
-      };
 
       const drawBalls = () => {
         ctx?.clearRect(0, 0, canvas.width, canvas.height);
