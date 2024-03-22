@@ -27,8 +27,8 @@ export class Ball {
   }
 }
 
-const friction = 0.97;
-const elasticity = 0.9;
+const friction = 0.99;
+const elasticity = 0.5;
 
 interface TableProps {
   colorBall: string;
